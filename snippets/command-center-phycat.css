@@ -1,0 +1,1119 @@
+/* Original local Luma dashboard components, adapted for Phycat. */
+/* ============================================================
+   Luma Glass · Dashboard Kit
+   科研与备考看板用的玻璃组件。全部走主题变量，明暗自动适配。
+   组件清单：
+     .lg-grid / .lg-card          布局与卡片
+     .lg-ring / .lg-bar           环形与条形进度
+     .lg-pill / .lg-dot           状态徽章
+     .lg-stat / .lg-countdown     数字与倒计时
+     .lg-heat                     学习热力图
+     .lg-timeline                 里程碑时间轴
+     .lg-row / .lg-note           列表行与笔记条目
+   ============================================================ */
+
+:root {
+  --luma-dash-gap: 14px;
+  --luma-dash-ring: 88px;
+}
+
+/* 语义色：🔴 薄弱 / 🟡 不稳定 / 🟢 已掌握 / 蓝 中性 */
+.theme-light {
+  --lg-red: #c8102e;
+  --lg-red-soft: rgba(200, 16, 46, .10);
+  --lg-amber: #9a5b00;
+  --lg-amber-soft: rgba(154, 91, 0, .11);
+  --lg-green: #17703a;
+  --lg-green-soft: rgba(23, 112, 58, .11);
+  --lg-blue: #0a5cc4;
+  --lg-blue-soft: rgba(10, 92, 196, .10);
+  --lg-violet: #5f3bc4;
+  --lg-violet-soft: rgba(95, 59, 196, .10);
+  --lg-surface: rgba(255, 255, 255, .52);
+  --lg-surface-strong: rgba(255, 255, 255, .76);
+  --lg-track: rgba(20, 24, 32, .10);
+  --lg-track-strong: rgba(20, 24, 32, .16);
+}
+
+.theme-dark {
+  --lg-red: #ff7a85;
+  --lg-red-soft: rgba(255, 122, 133, .14);
+  --lg-amber: #ffc06b;
+  --lg-amber-soft: rgba(255, 192, 107, .13);
+  --lg-green: #5fd48a;
+  --lg-green-soft: rgba(95, 212, 138, .13);
+  --lg-blue: #7fb4ff;
+  --lg-blue-soft: rgba(127, 180, 255, .13);
+  --lg-violet: #b79bff;
+  --lg-violet-soft: rgba(183, 155, 255, .13);
+  --lg-surface: rgba(255, 255, 255, .05);
+  --lg-surface-strong: rgba(255, 255, 255, .09);
+  --lg-track: rgba(255, 255, 255, .12);
+  --lg-track-strong: rgba(255, 255, 255, .20);
+}
+
+/* ---------- 布局 ---------- */
+
+.lg-grid {
+  display: grid;
+  gap: var(--luma-dash-gap);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  margin: 0.6em 0 1.1em;
+}
+
+.lg-grid--2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.lg-grid--wide { grid-template-columns: 1fr; }
+.lg-grid--tight { gap: calc(var(--luma-dash-gap) * .6); }
+
+@media (max-width: 760px) {
+  .lg-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- 卡片 ---------- */
+
+.lg-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--luma-hairline);
+  background: var(--lg-surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, calc(var(--luma-shadow-strength) * .5)),
+              inset 0 1px 0 color-mix(in srgb, var(--luma-specular) 70%, transparent);
+  transition: transform var(--luma-motion-speed) var(--luma-ease),
+              box-shadow var(--luma-motion-speed) var(--luma-ease),
+              border-color var(--luma-motion-speed) var(--luma-ease);
+}
+
+.lg-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--interactive-accent) 26%, var(--luma-hairline));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, calc(var(--luma-shadow-strength) * .75)),
+              inset 0 1px 0 var(--luma-specular);
+}
+
+.lg-card--flush { padding: 0; overflow: hidden; }
+
+.lg-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lg-card__title {
+  font-size: 0.82em;
+  font-weight: 640;
+  letter-spacing: .01em;
+  color: var(--text-muted);
+  text-transform: none;
+}
+
+.lg-card__meta {
+  font-size: 0.72em;
+  color: var(--text-faint);
+}
+
+/* 卡片左侧语义色条 */
+.lg-card--red    { box-shadow: inset 3px 0 0 var(--lg-red), 0 6px 20px rgba(0,0,0,calc(var(--luma-shadow-strength) * .5)); }
+.lg-card--amber  { box-shadow: inset 3px 0 0 var(--lg-amber), 0 6px 20px rgba(0,0,0,calc(var(--luma-shadow-strength) * .5)); }
+.lg-card--green  { box-shadow: inset 3px 0 0 var(--lg-green), 0 6px 20px rgba(0,0,0,calc(var(--luma-shadow-strength) * .5)); }
+.lg-card--accent { box-shadow: inset 3px 0 0 var(--interactive-accent), 0 6px 20px rgba(0,0,0,calc(var(--luma-shadow-strength) * .5)); }
+
+/* ---------- 数字与倒计时 ---------- */
+
+.lg-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1;
+}
+
+.lg-stat__value {
+  font-size: 2em;
+  font-weight: 720;
+  letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+}
+
+.lg-stat__unit {
+  font-size: 0.78em;
+  font-weight: 560;
+  color: var(--text-muted);
+}
+
+.lg-stat__label {
+  font-size: 0.74em;
+  color: var(--text-muted);
+}
+
+.lg-countdown .lg-stat__value { color: var(--interactive-accent); }
+.lg-countdown--urgent .lg-stat__value { color: var(--lg-red); }
+.lg-countdown--soon .lg-stat__value { color: var(--lg-amber); }
+
+/* ---------- 环形进度 ---------- */
+
+.lg-ring {
+  --p: 0;
+  --lg-ring-color: var(--interactive-accent);
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--luma-dash-ring);
+  height: var(--luma-dash-ring);
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--lg-ring-color) calc(var(--p) * 1%),
+    var(--lg-track) 0
+  );
+  display: grid;
+  place-items: center;
+  transition: background var(--luma-motion-speed) var(--luma-ease);
+}
+
+.lg-ring::after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: var(--background-primary);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .10);
+}
+
+.lg-ring__label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.lg-ring__value {
+  font-size: 1.12em;
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+}
+
+.lg-ring__unit {
+  font-size: 0.62em;
+  color: var(--text-faint);
+}
+
+.lg-ring--red   { --lg-ring-color: var(--lg-red); }
+.lg-ring--amber { --lg-ring-color: var(--lg-amber); }
+.lg-ring--green { --lg-ring-color: var(--lg-green); }
+
+/* ---------- 条形进度 ---------- */
+
+.lg-bar {
+  position: relative;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--lg-track);
+  overflow: hidden;
+}
+
+.lg-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--lg-bar-color, var(--interactive-accent)) 78%, transparent),
+    var(--lg-bar-color, var(--interactive-accent)));
+  transition: width 480ms var(--luma-ease);
+}
+
+.lg-bar--red   { --lg-bar-color: var(--lg-red); }
+.lg-bar--amber { --lg-bar-color: var(--lg-amber); }
+.lg-bar--green { --lg-bar-color: var(--lg-green); }
+
+.lg-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lg-bar-row > .lg-bar { flex: 1; }
+
+.lg-bar-row__value {
+  flex: 0 0 auto;
+  min-width: 3.2em;
+  text-align: right;
+  font-size: 0.76em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* ---------- 状态徽章 ---------- */
+
+.lg-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68em;
+  font-weight: 620;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  background: var(--lg-track);
+  color: var(--text-muted);
+}
+
+.lg-pill--red    { background: var(--lg-red-soft);    color: var(--lg-red); }
+.lg-pill--amber  { background: var(--lg-amber-soft);  color: var(--lg-amber); }
+.lg-pill--green  { background: var(--lg-green-soft);  color: var(--lg-green); }
+.lg-pill--blue   { background: var(--lg-blue-soft);   color: var(--lg-blue); }
+.lg-pill--violet { background: var(--lg-violet-soft); color: var(--lg-violet); }
+
+.lg-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lg-track-strong);
+  flex: 0 0 auto;
+}
+
+.lg-dot--red    { background: var(--lg-red); box-shadow: 0 0 0 3px var(--lg-red-soft); }
+.lg-dot--amber  { background: var(--lg-amber); box-shadow: 0 0 0 3px var(--lg-amber-soft); }
+.lg-dot--green  { background: var(--lg-green); box-shadow: 0 0 0 3px var(--lg-green-soft); }
+.lg-dot--blue   { background: var(--lg-blue); box-shadow: 0 0 0 3px var(--lg-blue-soft); }
+
+/* ---------- 列表行 ---------- */
+
+.lg-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: 9px;
+  transition: background-color var(--luma-motion-speed) ease, transform 120ms var(--luma-press-ease);
+}
+
+.lg-row + .lg-row { margin-top: 1px; }
+
+.lg-row:hover {
+  background: var(--background-modifier-hover);
+  transform: translateX(2px);
+}
+
+.lg-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.lg-row__title {
+  font-size: 0.84em;
+  color: var(--text-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lg-row__sub {
+  font-size: 0.7em;
+  color: var(--text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lg-row__tail {
+  flex: 0 0 auto;
+  font-size: 0.7em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-note { padding-left: 0; }
+
+.lg-empty {
+  padding: 12px 10px;
+  font-size: 0.78em;
+  color: var(--text-faint);
+  text-align: center;
+  border-radius: 10px;
+  border: 1px dashed var(--lg-track-strong);
+}
+
+/* ---------- 科目卡 ---------- */
+
+.lg-subject {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lg-subject__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.lg-subject__name {
+  font-size: 0.95em;
+  font-weight: 640;
+  color: var(--text-normal);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lg-subject__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* ---------- 热力图 ---------- */
+
+.lg-heat-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.lg-heat {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 1fr);
+  gap: 3px;
+  width: max-content;
+}
+
+.lg-heat i {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--lg-track);
+  transition: transform 120ms var(--luma-press-ease);
+}
+
+.lg-heat i:hover { transform: scale(1.35); }
+
+.lg-heat i[data-l="1"] { background: color-mix(in srgb, var(--interactive-accent) 24%, transparent); }
+.lg-heat i[data-l="2"] { background: color-mix(in srgb, var(--interactive-accent) 45%, transparent); }
+.lg-heat i[data-l="3"] { background: color-mix(in srgb, var(--interactive-accent) 68%, transparent); }
+.lg-heat i[data-l="4"] { background: var(--interactive-accent); }
+
+.lg-heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68em;
+  color: var(--text-faint);
+}
+
+.lg-heat-legend i {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--lg-track);
+}
+
+.lg-heat-legend i[data-l="1"] { background: color-mix(in srgb, var(--interactive-accent) 24%, transparent); }
+.lg-heat-legend i[data-l="2"] { background: color-mix(in srgb, var(--interactive-accent) 45%, transparent); }
+.lg-heat-legend i[data-l="3"] { background: color-mix(in srgb, var(--interactive-accent) 68%, transparent); }
+.lg-heat-legend i[data-l="4"] { background: var(--interactive-accent); }
+
+/* ---------- 时间轴 ---------- */
+
+.lg-timeline {
+  position: relative;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.lg-timeline::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  bottom: 6px;
+  width: 1.5px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--interactive-accent) 45%, transparent),
+    var(--lg-track));
+  border-radius: 2px;
+}
+
+.lg-tl-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lg-tl-item::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--interactive-accent);
+  box-shadow: 0 0 0 3px var(--lg-surface-strong);
+}
+
+.lg-tl-item--done::before  { background: var(--lg-green); }
+.lg-tl-item--doing::before { background: var(--lg-amber); }
+.lg-tl-item--todo::before  { background: var(--lg-track-strong); }
+
+.lg-tl-item__head {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.lg-tl-item__title {
+  font-size: 0.84em;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.lg-tl-item__date {
+  font-size: 0.68em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-tl-item__desc {
+  font-size: 0.74em;
+  color: var(--text-muted);
+}
+
+/* ---------- 分区标题 ---------- */
+
+.lg-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 1.5em 0 .5em;
+  font-size: 0.94em;
+  font-weight: 680;
+  letter-spacing: -.01em;
+  color: var(--text-normal);
+}
+
+.lg-section::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--lg-track-strong), transparent);
+}
+
+.lg-section__count {
+  font-size: 0.72em;
+  font-weight: 600;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 紧凑模式 ---------- */
+
+.luma-dash-compact .lg-card { padding: 10px 12px; gap: 6px; }
+.luma-dash-compact .lg-grid { gap: 9px; }
+.luma-dash-compact .lg-stat__value { font-size: 1.6em; }
+
+/* ---------- 打印 ---------- */
+
+@media print {
+  .lg-card { break-inside: avoid; box-shadow: none; }
+}
+
+/* ---------- 看板页面：放宽内容宽度，让多列卡片铺得开 ---------- */
+
+.luma-command-center {
+  --file-line-width: 1120px;
+}
+
+.luma-command-center .markdown-preview-sizer,
+.luma-command-center .cm-sizer {
+  max-width: var(--file-line-width);
+}
+
+/* 看板里的表格不换行挤压 */
+.luma-command-center table {
+  font-size: 0.86em;
+}
+
+.luma-command-center .dataview.table-view-table th {
+  font-size: 0.76em;
+  letter-spacing: .02em;
+  color: var(--text-muted);
+  text-transform: none;
+}
+
+/* 看板里的 callout 收紧一点 */
+.luma-command-center .callout {
+  margin-block: 0.9em;
+}
+
+/* ---------- 奇数张卡片时，最后一张占满整行（如 7 张科目卡） ---------- */
+
+.lg-grid--subjects > .lg-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.lg-grid--subjects > .lg-card:last-child:nth-child(odd) .lg-subject {
+  max-width: 640px;
+}
+
+
+/* ============================================================
+   Luma Glass · Dashboard Kit v2 —— 精修层（2026-10-09）
+   目标：降噪、留白、丝滑。只做覆盖与新增，不改上面的组件契约。
+   新增组件：
+     .lg-metrics   顶部紧凑指标条（一行看完关键数字）
+     .lg-zone      分区容器（知识区 / 个人操作系统，主次可分）
+     .lg-mini      卡内三列迷你列表
+     .lg-focus     今日焦点行（存在感更强）
+   ============================================================ */
+
+:root {
+  --luma-dash-gap: 16px;
+  --luma-dash-ring: 66px;
+  --luma-dash-radius: 16px;
+  --lg-shadow-1: 0 2px 10px rgba(0, 0, 0, calc(var(--luma-shadow-strength) * .24));
+  --lg-shadow-2: 0 8px 22px rgba(0, 0, 0, calc(var(--luma-shadow-strength) * .40));
+}
+
+/* ---------- 卡片：更轻的阴影、更柔的过渡 ---------- */
+
+.lg-card {
+  gap: 9px;
+  padding: 15px 17px;
+  border-radius: var(--luma-dash-radius);
+  box-shadow: var(--lg-shadow-1),
+              inset 0 1px 0 color-mix(in srgb, var(--luma-specular) 55%, transparent);
+  transition: transform .22s var(--luma-ease),
+              box-shadow .22s var(--luma-ease),
+              border-color .22s var(--luma-ease);
+}
+
+.lg-card:hover {
+  transform: translateY(-1.5px);
+  box-shadow: var(--lg-shadow-2), inset 0 1px 0 var(--luma-specular);
+}
+
+/* 语义色条从 box-shadow 改为伪元素：释放 box-shadow，hover 不再丢色条 */
+.lg-card--red,
+.lg-card--amber,
+.lg-card--green,
+.lg-card--accent {
+  box-shadow: var(--lg-shadow-1),
+              inset 0 1px 0 color-mix(in srgb, var(--luma-specular) 55%, transparent);
+}
+
+.lg-card--red,
+.lg-card--amber,
+.lg-card--green,
+.lg-card--accent {
+  --lg-card-accent: var(--interactive-accent);
+}
+
+.lg-card--red    { --lg-card-accent: var(--lg-red); }
+.lg-card--amber  { --lg-card-accent: var(--lg-amber); }
+.lg-card--green  { --lg-card-accent: var(--lg-green); }
+
+.lg-card--red::before,
+.lg-card--amber::before,
+.lg-card--green::before,
+.lg-card--accent::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 13px;
+  bottom: 13px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--lg-card-accent);
+  pointer-events: none;
+}
+
+/* ---------- 分区标题：降噪 ---------- */
+
+.lg-section {
+  margin: 1.7em 0 .65em;
+  font-size: .78em;
+  font-weight: 660;
+  letter-spacing: .08em;
+  color: var(--text-faint);
+}
+
+.lg-section::after {
+  background: linear-gradient(90deg, var(--luma-hairline), transparent);
+}
+
+.lg-section__count {
+  font-size: .92em;
+  font-weight: 560;
+  letter-spacing: 0;
+}
+
+/* ---------- 其余组件微调 ---------- */
+
+.lg-grid { margin: .6em 0 1.2em; }
+
+/* 两列网格改成「固定两列」：避免宽屏下 auto-fit 挤出第三列，
+   导致两张卡只占三分之二、或七张卡排成 3+3+1。 */
+.lg-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+@media (max-width: 760px) {
+  .lg-grid--2 { grid-template-columns: 1fr; }
+}
+
+/* 科目卡网格：正好 8 张（7 科 + 错题清零），两列四行排满 */
+.lg-grid--subjects > .lg-card:last-child:nth-child(odd) {
+  grid-column: auto;
+}
+
+.lg-grid--subjects > .lg-card:last-child:nth-child(odd) .lg-subject {
+  max-width: none;
+}
+
+.lg-ring::after { inset: 7px; }
+
+/* ---------- 发丝线修正 ----------
+   主题的 --luma-hairline 是「白色高光」，放在浅色主题的白卡片上等于隐形。
+   这里换成跟随正文色的柔和描边，明暗主题都看得见。 */
+.lg-card,
+.lg-metrics {
+  border-color: color-mix(in srgb, var(--text-normal) 9%, transparent);
+}
+
+.lg-metric {
+  border-left-color: color-mix(in srgb, var(--text-normal) 9%, transparent);
+}
+
+.lg-section::after,
+.lg-zone__rule {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--text-normal) 13%, transparent), transparent);
+}
+.lg-ring__value { font-size: 1.05em; }
+
+.lg-pill { padding: 1.5px 8px; font-size: .66em; font-weight: 580; }
+
+.lg-row { padding: 6px 8px; border-radius: 8px; }
+.lg-row:hover { transform: none; }
+
+.lg-empty { padding: 10px 10px; }
+
+.lg-heat { gap: 3px; }
+.lg-heat i { width: 10px; height: 10px; }
+
+/* ---------- 顶部紧凑指标条 ---------- */
+
+.lg-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  margin: .5em 0 1.4em;
+  padding: 13px 6px;
+  border-radius: var(--luma-dash-radius);
+  border: 1px solid var(--luma-hairline);
+  background: var(--lg-surface);
+  box-shadow: var(--lg-shadow-1),
+              inset 0 1px 0 color-mix(in srgb, var(--luma-specular) 55%, transparent);
+}
+
+.lg-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 1px 16px;
+  border-left: 1px solid var(--luma-hairline);
+}
+
+.lg-metric:first-child { border-left: 0; }
+
+.lg-metric__value {
+  font-size: 1.5em;
+  font-weight: 720;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+}
+
+.lg-metric__unit {
+  margin-left: 3px;
+  font-size: .62em;
+  font-weight: 560;
+  color: var(--text-faint);
+}
+
+.lg-metric__label {
+  font-size: .68em;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lg-metric--accent .lg-metric__value { color: var(--interactive-accent); }
+.lg-metric--red    .lg-metric__value { color: var(--lg-red); }
+.lg-metric--amber  .lg-metric__value { color: var(--lg-amber); }
+.lg-metric--green  .lg-metric__value { color: var(--lg-green); }
+
+@media (max-width: 720px) {
+  .lg-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 11px; }
+  .lg-metric { border-left: 0; padding: 3px 12px; }
+}
+
+/* ---------- 分区容器（知识区 / 个人操作系统） ---------- */
+
+.lg-zone { margin: 0 0 1.3em; }
+
+.lg-zone__head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 9px;
+}
+
+.lg-zone__badge {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: .7em;
+  font-weight: 660;
+  letter-spacing: .02em;
+  background: var(--lg-track);
+  color: var(--text-muted);
+}
+
+.lg-zone__meta {
+  flex: 0 0 auto;
+  font-size: .7em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-zone__rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--luma-hairline), transparent);
+}
+
+.lg-zone--main .lg-zone__badge { background: var(--lg-blue-soft);   color: var(--lg-blue); }
+.lg-zone--sub  .lg-zone__badge { background: var(--lg-violet-soft); color: var(--lg-violet); }
+
+/* 次级区整体降噪：卡片更透、标题更淡 */
+.lg-zone--sub .lg-card {
+  background: color-mix(in srgb, var(--lg-surface) 58%, transparent);
+  border-color: color-mix(in srgb, var(--text-normal) 7%, transparent);
+}
+
+.lg-zone--sub .lg-card__title { color: var(--text-faint); }
+
+/* ---------- 卡内三列迷你列表 ---------- */
+
+.lg-mini {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.lg-mini__col { min-width: 0; }
+
+.lg-mini__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 0 0 3px 8px;
+  font-size: .68em;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--text-faint);
+}
+
+@media (max-width: 900px) {
+  .lg-mini { grid-template-columns: 1fr; gap: 10px; }
+}
+
+/* ---------- 今日焦点 ---------- */
+
+.lg-focus > .lg-card { background: var(--lg-surface-strong); }
+
+/* ---------- 入场动效（轻，且不干扰 hover） ---------- */
+
+@keyframes lg-rise {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lg-grid > .lg-card,
+  .lg-metrics,
+  .lg-zone {
+    animation: lg-rise .34s var(--luma-ease) backwards;
+  }
+
+  .lg-grid > .lg-card:nth-child(2) { animation-delay: 35ms; }
+  .lg-grid > .lg-card:nth-child(3) { animation-delay: 70ms; }
+  .lg-grid > .lg-card:nth-child(4) { animation-delay: 105ms; }
+  .lg-grid > .lg-card:nth-child(5) { animation-delay: 140ms; }
+  .lg-grid > .lg-card:nth-child(6) { animation-delay: 175ms; }
+  .lg-grid > .lg-card:nth-child(7) { animation-delay: 210ms; }
+}
+
+
+/* ============================================================
+   Luma Glass · Dashboard Kit v3 —— iOS 设置页层（2026-10-09）
+   目标：去边框去阴影、纯色块分组（inset grouped）、大留白；
+        色彩只保留在「状态圆点」与数据可视化（环形/条形/热力/趋势线）上。
+   只做覆盖与新增，不改组件契约。
+   新增组件：
+     .lg-act-stats  活跃度四项指标（连续天数 / 周对比 / 日均 / 峰值）
+     .lg-spark      13 周趋势线（SVG）
+     .lg-dist       按区 / 按科目分布条
+   ============================================================ */
+
+.theme-light {
+  --lg-glass: rgba(255, 255, 255, .82);
+  --lg-glass-strong: rgba(255, 255, 255, .92);
+  --lg-glass-line: rgba(255, 255, 255, .62);
+  --lg-glass-specular: rgba(255, 255, 255, .9);
+  --lg-glass-shadow: 0 8px 24px rgba(31, 35, 48, .08);
+}
+
+.theme-dark {
+  --lg-glass: rgba(30, 32, 39, .82);
+  --lg-glass-strong: rgba(38, 40, 48, .92);
+  --lg-glass-line: rgba(255, 255, 255, .09);
+  --lg-glass-specular: rgba(255, 255, 255, .07);
+  --lg-glass-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+}
+
+/* ---------- 卡片：iOS 风格（半透明实底 + 高光描边 + 轻阴影，无背景模糊） ---------- */
+
+.lg-card,
+.lg-metrics {
+  border: 1px solid var(--lg-glass-line);
+  background: var(--lg-glass);
+  box-shadow: var(--lg-glass-shadow),
+              inset 0 1px 0 var(--lg-glass-specular);
+}
+
+.lg-card:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--interactive-accent) 22%, var(--lg-glass-line));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, calc(var(--luma-shadow-strength, .1) * .55)),
+              inset 0 1px 0 var(--lg-glass-specular);
+}
+
+/* 主线 / 次线玻璃浓度不同：个人操作系统更透 */
+.lg-zone--sub .lg-card {
+  background: color-mix(in srgb, var(--lg-glass) 55%, transparent);
+}
+
+.lg-focus > .lg-card { background: var(--lg-glass-strong); }
+
+/* ---------- 大留白 ---------- */
+
+.lg-section { margin: 2.3em 0 .7em; }
+.lg-grid { margin: .6em 0 1.5em; }
+.lg-metrics { margin: .5em 0 1.6em; }
+
+/* ---------- 活跃度：四项指标 ---------- */
+
+.lg-act-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lg-act-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lg-act-stat__value {
+  font-size: 1.45em;
+  font-weight: 720;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-normal);
+}
+
+.lg-act-stat__vs {
+  margin-left: 4px;
+  font-size: .55em;
+  font-weight: 560;
+  color: var(--text-faint);
+}
+
+.lg-act-stat__label { font-size: .68em; color: var(--text-faint); }
+
+.lg-act-stat__delta { font-weight: 660; }
+.lg-act-stat__delta--up   { color: var(--lg-green); }
+.lg-act-stat__delta--down { color: var(--lg-red); }
+.lg-act-stat__delta--flat { color: var(--text-faint); }
+
+/* ---------- 活跃度：13 周趋势线 ---------- */
+
+.lg-act-trend {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lg-spark {
+  width: 100%;
+  height: 34px;
+  display: block;
+}
+
+.lg-act-trend__cap { font-size: .66em; color: var(--text-faint); }
+
+/* ---------- 活跃度：按区 / 按科目分布 ---------- */
+
+.lg-dist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.lg-dist__head {
+  margin: 0 0 5px;
+  font-size: .68em;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--text-faint);
+}
+
+.lg-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.lg-dist-row__label {
+  flex: 0 0 auto;
+  min-width: 5.5em;
+  font-size: .74em;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lg-dist-row__bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--lg-track);
+  overflow: hidden;
+}
+
+.lg-dist-row__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--interactive-accent);
+  opacity: .85;
+}
+
+.lg-dist-row__num {
+  flex: 0 0 auto;
+  min-width: 2.2em;
+  text-align: right;
+  font-size: .72em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+
+@media (max-width: 760px) {
+  .lg-dist { grid-template-columns: 1fr; }
+  .lg-act-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; }
+}
+
+/* ---------- v3.2 补充：活跃度日期轴与热力图月份标签 ---------- */
+
+.lg-act-trend__axis {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: .62em;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.lg-heat-months {
+  display: grid;
+  grid-template-columns: repeat(13, 10px);
+  gap: 3px;
+  width: max-content;
+  font-size: .62em;
+  color: var(--text-faint);
+}
+
+.lg-heat-months span {
+  grid-row: 1;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* ============================================================
+   Luma Glass · Mobile 层（2026-10-10）
+   配合 00_Home/Command Center Mobile.md 使用：
+   手机上单列布局、紧凑间距；桌面端不受影响。
+   ============================================================ */
+
+body.is-phone .lg-grid--2 { grid-template-columns: 1fr !important; }
+body.is-phone .lg-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px; }
+body.is-phone .lg-section { margin: 1.4em 0 .45em; }
+body.is-phone .lg-grid { margin: .4em 0 1em; }
+body.is-phone .lg-act-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.is-phone .lg-dist { grid-template-columns: 1fr; }
+body.is-phone .lg-heat { grid-template-columns: repeat(26, 10px); }
+
+/* Phycat bridge: retain dashboard structure, use Sakura palette, no nested blur. */
+.luma-command-center {
+ --luma-hairline: color-mix(in srgb, var(--interactive-accent) 16%, transparent);
+ --luma-specular: rgba(255,255,255,.48);
+ --luma-shadow-strength: .10;
+ --luma-motion-speed: 140ms;
+ --luma-ease: ease;
+ --lg-violet: var(--secondary-color, #bd93f9);
+ --lg-blue: var(--interactive-accent);
+ --lg-blue-soft: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
+ --lg-surface: color-mix(in srgb, var(--bg-color, var(--background-primary)) 64%, transparent);
+ --lg-surface-strong: color-mix(in srgb, var(--bg-color, var(--background-primary)) 84%, transparent);
+ --file-line-width: 1120px;
+}
+.luma-command-center .lg-card {
+ border-radius: 16px; border-color: var(--luma-hairline);
+ backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+ box-shadow: inset 0 1px 0 var(--luma-specular), 0 3px 12px rgba(100,45,72,.06);
+ transition: border-color 140ms ease, background-color 140ms ease;
+}
+.luma-command-center .lg-card:hover { transform:none; }
+.luma-command-center .lg-metrics { border-radius:16px; background:var(--lg-surface); }
+.luma-command-center .lg-section { color:var(--text-normal); }
+.luma-command-center .lg-card__meta, .luma-command-center .lg-row__sub { color:var(--text-muted); }
